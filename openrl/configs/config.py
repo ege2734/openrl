@@ -1042,23 +1042,26 @@ def create_config_parser():
         help="Control the exploration variance of the generated actions",
     )
     parser.add_argument(
-        "actor_lr", type=float, default=0.001, help="The learning rate of actor network"
+        "--actor_lr",
+        type=float,
+        default=0.001,
+        help="The learning rate of actor network",
     )
     # for SAC
     parser.add_argument(
-        "auto_alph",
+        "--auto_alph",
         type=bool,
         default=False,
         help="whether to use automatic alpha tuning",
     )
     parser.add_argument(
-        "alpha_value",
+        "--alpha_value",
         type=float,
         default=0.2,
         help="The value of alpha",
     )
     parser.add_argument(
-        "alpha_lr",
+        "--alpha_lr",
         type=float,
         default=2e-4,
         help="The learning rate of temperature alpha",

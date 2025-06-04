@@ -24,7 +24,7 @@ from gymnasium import spaces
 from gymnasium.utils.step_api_compatibility import (
     convert_to_terminated_truncated_step_api,
 )
-from gymnasium.wrappers import AutoResetWrapper, StepAPICompatibility
+from gymnasium.wrappers import Autoreset as AutoResetWrapper
 
 from openrl.envs.wrappers import BaseObservationWrapper, BaseRewardWrapper, BaseWrapper
 from openrl.envs.wrappers.base_wrapper import ActType, ArrayType, WrapperObsType
@@ -119,13 +119,14 @@ def step_api_compatibility(
         return convert_to_done_step_api(step_returns, is_vector_env)
 
 
-class RemoveTruncated(StepAPICompatibility, BaseWrapper):
+class RemoveTruncated(BaseWrapper):
     def __init__(
         self,
         env: gym.Env,
     ):
-        output_truncation_bool = False
-        super().__init__(env, output_truncation_bool=output_truncation_bool)
+        super().__init__(env)
+        self.is_vector_env = isinstance(env.unwrapped, gym.vector.VectorEnv)
+        self.output_truncation_bool = False
 
     def step(self, action):
         step_returns = self.env.step(action)
