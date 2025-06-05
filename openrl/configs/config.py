@@ -14,7 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """"""
-from typing import List
+import dataclasses
+from dataclasses import dataclass, field
+from typing import Dict, List, Optional
 
 from jsonargparse import ActionConfigFile, ArgumentParser
 
@@ -1264,3 +1266,354 @@ def create_config_parser():
     )
 
     return parser
+
+
+# Nested dataclasses for structured arguments
+
+
+@dataclass
+class SelfPlayAPI:
+    """Configuration for the self-play API."""
+
+    host: str = "127.0.0.1"
+    port: int = 10086
+
+
+@dataclass
+class Env:
+    """Configuration for the environment."""
+
+    args: Dict = field(default_factory=dict)
+
+
+@dataclass
+class RewardClass:
+    """Configuration for the reward class."""
+
+    id: Optional[str] = None
+    args: Dict = field(default_factory=dict)
+
+
+@dataclass
+class VecInfoClass:
+    """Configuration for the vectorized environment's info class."""
+
+    id: Optional[str] = None
+    args: Dict = field(default_factory=dict)
+
+
+# Main configuration dataclass
+
+
+@dataclass
+class Config:
+    """
+    Main configuration dataclass based on the provided script arguments.
+    """
+
+    # Top-level arguments
+    config: Optional[str] = None
+    seed: int = 0
+
+    # For Transformers
+    encode_state: bool = False
+    n_block: int = 1
+    n_embd: int = 64
+    n_head: int = 1
+    dec_actor: bool = False
+    share_actor: bool = False
+
+    callbacks: List[dict] = field(default_factory=list)
+
+    # For Stable-baselines3
+    sb3_model_path: Optional[str] = None
+    sb3_algo: Optional[str] = None
+
+    # For Hierarchical RL
+    step_difference: int = 1
+
+    # For GAIL
+    gail: bool = False
+    expert_data: Optional[str] = None
+    gail_batch_size: int = 128
+    dis_input_len: Optional[int] = None
+    gail_loss_target: Optional[float] = None
+    gail_epoch: int = 5
+    gail_use_action: bool = True
+    gail_hidden_size: int = 256
+    gail_layer_num: int = 3
+    gail_lr: float = 5e-4
+
+    # For Data Collector
+    data_dir: Optional[str] = None
+    force_rewrite: bool = False
+    collector_num: int = 1
+
+    # For convert
+    input_data_dir: Optional[str] = None
+    output_data_dir: Optional[str] = None
+    worker_num: int = 1
+    sample_interval: int = 1
+
+    # For Self-Play
+    selfplay_api: SelfPlayAPI = field(default_factory=SelfPlayAPI)
+    lazy_load_opponent: bool = True
+    self_play: bool = False
+    selfplay_algo: str = "WeightExistEnemy"
+    max_play_num: int = 2000
+    max_enemy_num: int = -1
+    exist_enemy_num: int = 0
+    random_pos: int = -1
+    build_in_pos: int = -1
+
+    # For AMP
+    use_amp: bool = False
+
+    # For Optimizer
+    load_optimizer: bool = False
+
+    # For JRPO
+    use_joint_action_loss: bool = False
+
+    # For Game Wrapper
+    frameskip: Optional[int] = None
+
+    # For Evaluation
+    eval_render: bool = False
+
+    # For Distributed Training
+    terminal: str = "current_terminal"
+    distributed_type: str = "sync"
+    program_type: str = "local"
+    share_temp_dir: Optional[str] = None
+    share_entry_script_path: Optional[str] = None
+    learner_num: int = 1
+    fetch_num: int = 1
+    tmux_prefix: Optional[str] = None
+    kill_all: bool = False
+    namespace: str = "default"
+
+    # For k8s
+    mount_path: Optional[str] = None
+    mount_name: Optional[str] = None
+    persistent_volume_claim_name: Optional[str] = None
+
+    # For Debug
+    disable_training: bool = False
+
+    # For Actor
+    use_half_actor: bool = False
+
+    # Core parameters
+    algorithm_name: str = "ppo"
+    experiment_name: str = ""
+    gpu_usage_type: str = "auto"
+    disable_cuda: bool = False
+    cuda_deterministic: bool = True
+    pytorch_threads: int = 1
+    n_rollout_threads: int = 32
+    n_eval_rollout_threads: int = 1
+    n_render_rollout_threads: int = 1
+    num_env_steps: int = 10000000
+    user_name: str = "openrl"
+
+    # Wandb parameters
+    wandb_entity: Optional[str] = None
+    disable_wandb: bool = False
+
+    # Env parameters
+    env_name: str = "StarCraft2"
+    scenario_name: str = "default"
+    num_agents: int = 1
+    num_enemies: int = 1
+    use_obs_instead_of_state: bool = False
+
+    # Replay buffer parameters
+    episode_length: int = 200
+    eval_episode_length: int = 200
+    max_episode_length: Optional[int] = None
+
+    # Network parameters
+    separate_policy: bool = False
+    use_conv1d: bool = False
+    stacked_frames: int = 1
+    use_stacked_frames: bool = False
+    hidden_size: int = 64
+    layer_N: int = 1
+    activation_id: int = 1
+    use_popart: bool = False
+    dual_clip_ppo: bool = False
+    dual_clip_coeff: float = 3.0
+    use_valuenorm: bool = True
+    use_feature_normalization: bool = False
+    use_orthogonal: bool = True
+    gain: float = 0.01
+    cnn_layers_params: Optional[str] = None
+    use_maxpool2d: bool = False
+    rnn_type: str = "gru"
+    rnn_num: int = 1
+
+    # Recurrent parameters
+    use_naive_recurrent_policy: bool = False
+    use_recurrent_policy: bool = False
+    recurrent_N: int = 1
+    data_chunk_length: int = 2
+    use_influence_policy: bool = False
+    influence_layer_N: int = 1
+
+    # Attention parameters
+    use_attn: bool = False
+    attn_N: int = 1
+    attn_size: int = 64
+    attn_heads: int = 4
+    dropout: float = 0.0
+    use_average_pool: bool = True
+    use_attn_internal: bool = True
+    use_cat_self: bool = True
+
+    # Optimizer parameters
+    lr: float = 5e-4
+    tau: float = 0.995
+    critic_lr: float = 5e-4
+    opti_eps: float = 1e-5
+    weight_decay: float = 0.0
+
+    # Behavior cloning parameters
+    bc_epoch: int = 2
+
+    # PPO parameters
+    ppo_epoch: int = 10
+    use_policy_vhead: bool = False
+    use_clipped_value_loss: bool = True
+    clip_param: float = 0.2
+    num_mini_batch: int = 1
+    mini_batch_size: Optional[int] = None
+    policy_value_loss_coef: float = 0.5
+    entropy_coef: float = 0.01
+    value_loss_coef: float = 0.5
+    use_max_grad_norm: bool = True
+    max_grad_norm: float = 10.0
+    use_gae: bool = True
+    gamma: float = 0.99
+    gae_lambda: float = 0.95
+    use_proper_time_limits: bool = False
+    use_huber_loss: bool = True
+    use_value_active_masks: bool = True
+    use_policy_active_masks: bool = True
+    huber_delta: float = 10.0
+    use_adv_normalize: bool = False
+
+    # PPG parameters
+    aux_epoch: int = 5
+    clone_coef: float = 1.0
+    use_single_network: bool = False
+
+    # Run parameters
+    use_linear_lr_decay: bool = False
+
+    # Save parameters
+    save_interval: int = 1
+    only_eval: bool = False
+
+    # Log parameters
+    log_interval: int = 5
+    log_each_episode: bool = True
+    use_rich_handler: bool = True
+
+    # Eval parameters
+    use_eval: bool = False
+    eval_interval: int = 25
+    eval_episodes: int = 32
+
+    # Render parameters
+    save_gifs: bool = False
+    use_render: bool = False
+    render_episodes: int = 5
+    ifi: float = 0.1
+
+    # Pretrained parameters
+    model_dir: Optional[str] = None
+    save_dir: Optional[str] = None
+    init_dir: Optional[str] = None
+    run_dir: Optional[str] = None
+
+    # Replay buffer parameters
+    use_transmit: bool = False
+    server_address: Optional[str] = None
+    use_tlaunch: bool = False
+    actor_num: int = 1
+    use_reward_normalization: bool = False
+    buffer_size: int = 5000
+    popart_update_interval_step: int = 2
+
+    # Prioritized Experience Replay (PER)
+    use_per: bool = False
+    per_alpha: float = 0.6
+    per_beta_start: float = 0.4
+    per_eps: float = 1e-6
+    per_nu: float = 0.9
+
+    # Off-policy parameters
+    batch_size: int = 32
+    actor_train_interval_step: int = 2
+    train_interval_episode: int = 1
+    train_interval: int = 100
+    use_same_critic_obs: bool = True
+    use_global_all_local_state: bool = False
+    prev_act_inp: bool = False
+    target_update: int = 10
+
+    # For DDPG
+    var: float = 0.5
+    actor_lr: float = 0.001
+
+    # For SAC
+    auto_alph: bool = False
+    alpha_value: float = 0.2
+    alpha_lr: float = 2e-4
+
+    # Update parameters
+    use_soft_update: bool = True
+    hard_update_interval_episode: int = 200
+
+    # Exploration parameters
+    num_random_episodes: int = 5
+    epsilon_start: float = 1.0
+    epsilon_finish: float = 0.05
+    epsilon_anneal_time: int = 5000
+
+    # QMIX parameters
+    use_double_q: bool = True
+    hypernet_layers: int = 2
+    mixer_hidden_dim: int = 32
+    hypernet_hidden_dim: int = 64
+
+    # RMATD3 parameters
+    target_action_noise_std: float = 0.2
+
+    # Data and model paths
+    data_path: Optional[str] = None
+    env: Env = field(default_factory=Env)
+    model_path: Optional[str] = None
+    use_share_model: bool = False
+
+    # Reward class
+    reward_class: RewardClass = field(default_factory=RewardClass)
+
+    # Vec info class
+    vec_info_class: VecInfoClass = field(default_factory=VecInfoClass)
+    eval_metrics: List[dict] = field(default_factory=list)
+
+    # Self-play parameters
+    disable_update_enemy: bool = False
+    least_win_rate: float = 0.5
+    recent_list_max_len: int = 100
+    latest_weight: float = 0.5
+    newest_pos: int = 1
+    newest_weight: float = 0.5
+
+    # DeepSpeed parameters
+    use_deepspeed: bool = False
+    local_rank: int = -1
+    use_offload: bool = False
+    use_fp16: bool = False
