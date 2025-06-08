@@ -131,12 +131,54 @@ class ManCoverageEnv(AECEnv):
         # Observation space:
         # For offensive agent: [my_x, my_y, my_vx, my_vy, opponent_x, opponent_y, target_x, target_y]
         # For defensive agent: [my_x, my_y, my_vx, my_vy, opponent_x, opponent_y]
+        offensive_low = np.array(
+            [
+                0,
+                0,
+                -MAX_VELOCITY,
+                -MAX_VELOCITY,
+                0,
+                0,
+                0,
+                0,
+            ],
+            dtype=np.float32,
+        )
+        offensive_high = np.array(
+            [
+                ARENA_WIDTH,
+                ARENA_HEIGHT,
+                MAX_VELOCITY,
+                MAX_VELOCITY,
+                ARENA_WIDTH,
+                ARENA_HEIGHT,
+                ARENA_WIDTH,
+                ARENA_HEIGHT,
+            ],
+            dtype=np.float32,
+        )
+
+        defensive_low = np.array(
+            [0, 0, -MAX_VELOCITY, -MAX_VELOCITY, 0, 0], dtype=np.float32
+        )
+        defensive_high = np.array(
+            [
+                ARENA_WIDTH,
+                ARENA_HEIGHT,
+                MAX_VELOCITY,
+                MAX_VELOCITY,
+                ARENA_WIDTH,
+                ARENA_HEIGHT,
+            ],
+            dtype=np.float32,
+        )
+
         self.observation_spaces = {
             "offensive_agent_0": spaces.Box(
-                low=-np.inf, high=np.inf, shape=(8,), dtype=np.float32
+                low=offensive_low, high=offensive_high, dtype=np.float32
             ),
             "defensive_agent_0": spaces.Box(
-                low=-np.inf, high=np.inf, shape=(6,), dtype=np.float32
+                low=defensive_low, high=defensive_high, dtype=np.float32
             ),
         }
 
