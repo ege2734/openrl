@@ -323,15 +323,8 @@ class ManCoverageEnv(AECEnv):
             if self.frames >= EPISODE_LENGTH:
                 self.truncations = {agent: True for agent in self.agents}
                 self.infos[current_agent]["status"] = "episode_truncated"
-        # else:
-        #     # If not the last agent, clear previous rewards for this agent before its turn.
-        #     # PettingZoo expects reward to be for the *current* agent's step.
-        #     # Since _calculate_rewards_and_done is called only for the last agent,
-        #     # intermediate agents won't have their rewards updated yet.
-        #     # We can set a default reward (e.g., 0) or a time penalty.
-        #     # For now, let's assume reward calculation is global and happens once.
-        #     # PettingZoo will take self.rewards[current_agent]
-        #     self._clear_rewards()  # Clears rewards for all agents before recalculation by _calculate_rewards_and_done if it's last agent.
+        else:
+            self._clear_rewards()  # Clears rewards for all agents before recalculation by _calculate_rewards_and_done if it's last agent.
 
         # For the current agent, assign its specific reward and done status from the global calculation
         # This is tricky in AEC if rewards are interdependent and calculated once per "frame".
@@ -339,8 +332,8 @@ class ManCoverageEnv(AECEnv):
 
         # After _calculate_rewards_and_done (if it was the last agent), self.rewards, self.terminations are updated for everyone.
         # We fetch the specific values for the current_agent.
-        current_reward = self.rewards[current_agent]
-        self._cumulative_rewards[current_agent] += current_reward
+        self._cumulative_rewards[self.agent_selection] = 0
+        self._accumulate_rewards()
 
         if self.render_mode == "human":
             self.render()
